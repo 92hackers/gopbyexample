@@ -1,7 +1,11 @@
+// Import go packages
 import (
 	"fmt"
 	"strings"
 )
 
+// Use Replace method
 x := strings.NewReplacer("?", "!").Replace("hello, world???")
+
+// Print
 fmt.Println("x:", x)
