@@ -32,6 +32,9 @@ var tutorialsTOCFile = "./tutorials.txt"
 // Tutorials dir
 var tutorialsDir = "./tutorials/"
 
+// Main source code file suffix
+var mainSourceFileSuffix = ".gop"
+
 func verbose() bool {
 	return len(os.Getenv("VERBOSE")) > 0
 }
@@ -102,7 +105,7 @@ func mustGlob(glob string) []string {
 }
 
 func whichLexer(path string) string {
-	if strings.HasSuffix(path, ".go") {
+	if strings.HasSuffix(path, mainSourceFileSuffix) {
 		return "go"
 	} else if strings.HasSuffix(path, ".sh") {
 		return "console"
@@ -170,7 +173,7 @@ func parseSegs(sourcePath string) ([]*Seg, string) {
 	segs := []*Seg{}
 	lastSeen := ""
   codeCanRun := false
-  if strings.HasSuffix(sourcePath, ".go") {
+  if strings.HasSuffix(sourcePath, mainSourceFileSuffix) {
     codeCanRun = true
   }
 
@@ -223,6 +226,11 @@ func chromaFormat(code, filePath string) string {
 		lexer = lexers.Fallback
 	}
 
+  // Currently, Go+ source code will use syntax highlight rules that designed for Go
+  if strings.HasSuffix(filePath, mainSourceFileSuffix) {
+    lexer = lexers.Get("test.go")
+  }
+
 	if strings.HasSuffix(filePath, ".sh") {
 		lexer = SimpleShellOutputLexer
 	}
@@ -253,7 +261,7 @@ func parseAndRenderSegs(sourcePath string) ([]*Seg, string) {
 			seg.CodeRendered = chromaFormat(seg.Code, sourcePath)
 
 			// adding the content to the js code for copying to the clipboard
-			if strings.HasSuffix(sourcePath, ".go") {
+			if strings.HasSuffix(sourcePath, mainSourceFileSuffix) {
 				seg.CodeForJs = strings.Trim(seg.Code, "\n") + "\n"
 			}
 		}
