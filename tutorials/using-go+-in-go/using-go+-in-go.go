@@ -1,8 +1,8 @@
 package main
 
+// Import Go+ package
 import (
 	"fmt"
-
 	"github.com/goplus/gop/tutorial/14-Using-goplus-in-Go/foo"
 )
 
