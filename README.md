@@ -1,24 +1,20 @@
-# Go by Example
+# Go+ by Tutorials
 
-Content and build toolchain for [Go by Example](https://gobyexample.com),
-a site that teaches Go via annotated example programs.
+Content and build toolchain for [Go+ by Tutorials](https://github.com/goplus/gop#tutorials), a site that teaches Go+ via annotated tutorials.
 
-### Overview
+## Overview
 
-The Go by Example site is built by extracting code and
-comments from source files in `examples` and rendering
+The Go+ by Tutorials site is built by extracting code and
+comments from source files in `tutorials` and rendering
 them via the `templates` into a static `public`
 directory. The programs implementing this build process
 are in `tools`, along with dependencies specified in
 the `go.mod`file.
 
 The built `public` directory can be served by any
-static content system. The production site uses S3 and
-CloudFront, for example.
+static content system.
 
-### Building
-
-[![Build Status](https://github.com/mmcgrana/gobyexample/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/mmcgrana/gobyexample/actions)
+## Building
 
 To build the site you'll need Go installed. Run:
 
@@ -40,17 +36,7 @@ $ tools/serve
 
 and open `http://127.0.0.1:8000/` in your browser.
 
-### Publishing
-
-To upload the site:
-
-```console
-$ export AWS_ACCESS_KEY_ID=...
-$ export AWS_SECRET_ACCESS_KEY=...
-$ tools/upload
-```
-
-### License
+## License
 
 This work is copyright Mark McGranaghan and licensed under a
 [Creative Commons Attribution 3.0 Unported License](http://creativecommons.org/licenses/by/3.0/).
@@ -58,23 +44,9 @@ This work is copyright Mark McGranaghan and licensed under a
 The Go Gopher is copyright [Renée French](http://reneefrench.blogspot.com/) and licensed under a
 [Creative Commons Attribution 3.0 Unported License](http://creativecommons.org/licenses/by/3.0/).
 
+## Thanks
 
-### Translations
+1. Thanks to [gobyexample](https://github.com/mmcgrana/gobyexample) project, this project is built upon it.
 
-Contributor translations of the Go by Example site are available in:
-
-* [Chinese](https://gobyexample-cn.github.io/) by [gobyexample-cn](https://github.com/gobyexample-cn)
-* [Czech](http://gobyexamples.sweb.cz/) by [martinkunc](https://github.com/martinkunc/gobyexample-cz)
-* [French](http://le-go-par-l-exemple.keiruaprod.fr) by [keirua](https://github.com/keirua/gobyexample)
-* [Italian](http://gobyexample.it) by the [Go Italian community](https://github.com/golangit/gobyexample-it)
-* [Japanese](http://spinute.org/go-by-example) by [spinute](https://github.com/spinute)
-* [Korean](https://mingrammer.com/gobyexample/) by [mingrammer](https://github.com/mingrammer)
-* [Russian](https://gobyexample.com.ru/) by [badkaktus](https://github.com/badkaktus)
-* [Spanish](http://goconejemplos.com) by the [Go Mexico community](https://github.com/dabit/gobyexample)
-* [Ukrainian](http://butuzov.github.io/gobyexample/) by [butuzov](https://github.com/butuzov/gobyexample)
-
-### Thanks
-
-Thanks to [Jeremy Ashkenas](https://github.com/jashkenas)
-for [Docco](http://jashkenas.github.com/docco/), which
+2. Thanks to [Jeremy Ashkenas](https://github.com/jashkenas) for [Docco](http://jashkenas.github.com/docco/), which
 inspired this project.
