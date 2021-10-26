@@ -1,0 +1,2 @@
+# run
+$ ./unix-shebang.gop

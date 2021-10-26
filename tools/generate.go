@@ -26,6 +26,16 @@ import (
 // program.
 var siteDir = "./public"
 
+// Tutorials TOC file
+var tutorialsTOCFile = "./tutorials.txt"
+
+// Tutorials dir
+var tutorialsDir = "./tutorials/"
+
+// Main source code file suffixes
+var goFileSuffixes = []string{".go", ".gop"}
+var gopFileSuffix = ".gop"
+
 func verbose() bool {
 	return len(os.Getenv("VERBOSE")) > 0
 }
@@ -34,6 +44,15 @@ func check(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func isGoFile(sourcePath string) bool {
+  for _, suffix := range goFileSuffixes {
+    if strings.HasSuffix(sourcePath, suffix) {
+      return true
+    }
+  }
+  return false
 }
 
 func ensureDir(dir string) {
@@ -96,7 +115,7 @@ func mustGlob(glob string) []string {
 }
 
 func whichLexer(path string) string {
-	if strings.HasSuffix(path, ".go") {
+  if isGoFile(path) {
 		return "go"
 	} else if strings.HasSuffix(path, ".sh") {
 		return "console"
@@ -136,10 +155,10 @@ func parseHashFile(sourcePath string) (string, string) {
 
 func resetURLHashFile(codehash, code, sourcePath string) string {
 	if verbose() {
-		fmt.Println("  Sending request to play.golang.org")
+		fmt.Println("  Sending request to play.goplus.org")
 	}
 	payload := strings.NewReader(code)
-	resp, err := http.Post("https://play.golang.org/share", "text/plain", payload)
+	resp, err := http.Post("https://play.goplus.org/share", "text/plain", payload)
 	check(err)
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
@@ -163,6 +182,11 @@ func parseSegs(sourcePath string) ([]*Seg, string) {
 	filecontent := strings.Join(source, "\n")
 	segs := []*Seg{}
 	lastSeen := ""
+  codeCanRun := false
+  if isGoFile(sourcePath) {
+    codeCanRun = true
+  }
+
 	for _, line := range lines {
 		if line == "" {
 			lastSeen = ""
@@ -196,10 +220,11 @@ func parseSegs(sourcePath string) ([]*Seg, string) {
 			lastSeen = "code"
 		}
 	}
+
 	for i, seg := range segs {
 		seg.CodeEmpty = (seg.Code == "")
 		seg.CodeLeading = (i < (len(segs) - 1))
-		seg.CodeRun = strings.Contains(seg.Code, "package main")
+		seg.CodeRun = i == 0 && codeCanRun // Only render run icon on first code line
 	}
 	return segs, filecontent
 }
@@ -210,6 +235,11 @@ func chromaFormat(code, filePath string) string {
 	if lexer == nil {
 		lexer = lexers.Fallback
 	}
+
+  // Currently, Go+ source code will use syntax highlight rules that designed for Go
+  if strings.HasSuffix(filePath, gopFileSuffix) {
+    lexer = lexers.Get("test.go")
+  }
 
 	if strings.HasSuffix(filePath, ".sh") {
 		lexer = SimpleShellOutputLexer
@@ -241,7 +271,7 @@ func parseAndRenderSegs(sourcePath string) ([]*Seg, string) {
 			seg.CodeRendered = chromaFormat(seg.Code, sourcePath)
 
 			// adding the content to the js code for copying to the clipboard
-			if strings.HasSuffix(sourcePath, ".go") {
+      if isGoFile(sourcePath) {
 				seg.CodeForJs = strings.Trim(seg.Code, "\n") + "\n"
 			}
 		}
@@ -255,7 +285,7 @@ func parseAndRenderSegs(sourcePath string) ([]*Seg, string) {
 
 func parseExamples() []*Example {
 	var exampleNames []string
-	for _, line := range readLines("examples.txt") {
+	for _, line := range readLines(tutorialsTOCFile) {
 		if line != "" && !strings.HasPrefix(line, "#") {
 			exampleNames = append(exampleNames, line)
 		}
@@ -266,14 +296,14 @@ func parseExamples() []*Example {
 			fmt.Printf("Processing %s [%d/%d]\n", exampleName, i+1, len(exampleNames))
 		}
 		example := Example{Name: exampleName}
-		exampleID := strings.ToLower(exampleName)
-		exampleID = strings.Replace(exampleID, " ", "-", -1)
+    exampleID := strings.ToLower(exampleName)
+    exampleID = strings.Replace(exampleID, " ", "-", -1)
 		exampleID = strings.Replace(exampleID, "/", "-", -1)
 		exampleID = strings.Replace(exampleID, "'", "", -1)
 		exampleID = dashPat.ReplaceAllString(exampleID, "-")
 		example.ID = exampleID
 		example.Segs = make([][]*Seg, 0)
-		sourcePaths := mustGlob("examples/" + exampleID + "/*")
+		sourcePaths := mustGlob(tutorialsDir + exampleID + "/*")
 		for _, sourcePath := range sourcePaths {
 			if strings.HasSuffix(sourcePath, ".hash") {
 				example.GoCodeHash, example.URLHash = parseHashFile(sourcePath)
@@ -285,10 +315,10 @@ func parseExamples() []*Example {
 				example.Segs = append(example.Segs, sourceSegs)
 			}
 		}
-		newCodeHash := sha1Sum(example.GoCode)
-		if example.GoCodeHash != newCodeHash {
-			example.URLHash = resetURLHashFile(newCodeHash, example.GoCode, "examples/"+example.ID+"/"+example.ID+".hash")
-		}
+    newCodeHash := sha1Sum(example.GoCode)
+    if example.GoCodeHash != newCodeHash {
+      example.URLHash = resetURLHashFile(newCodeHash, example.GoCode, tutorialsDir+example.ID+"/"+example.ID+".hash")
+    }
 		examples = append(examples, &example)
 	}
 	for i, example := range examples {

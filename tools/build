@@ -2,15 +2,17 @@
 
 set -e
 
+VERBOSE=1
+
 verbose() {
 	! test -z "$VERBOSE"
 }
 
-verbose && echo "Running tests..."
-tools/test
+# verbose && echo "Running tests..."
+# tools/test
 
-verbose && echo "Formatting code..."
-tools/format
+# verbose && echo "Formatting code..."
+# tools/format
 
 verbose && echo "Measuring line lengths..."
 tools/measure

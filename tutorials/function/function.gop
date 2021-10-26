@@ -1,0 +1,30 @@
+// Import packages
+import (
+	"fmt"
+	"strings"
+)
+
+// foo
+func foo(x string) string {
+	return strings.NewReplacer("?", "!").Replace(x)
+}
+
+// printf
+func printf(format string, args ...interface{}) (n int, err error) {
+	n, err = fmt.Printf(format, args...)
+	return
+}
+
+// bar
+func bar(foo func(string, ...interface{}) (int, error)) {
+	foo("Hello, %v!\n", "Go+")
+}
+
+// Just call bar()
+bar(printf)
+
+// call foo
+fmt.Println(foo("Hello, world???"))
+
+// call printf
+fmt.Println(printf("Hello, %v\n", "Go+"))
